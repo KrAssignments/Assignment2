@@ -1,21 +1,26 @@
 package com.krupal.assignment1
 
+import android.content.Context
+import android.content.res.Configuration
 import android.os.Bundle
+import android.util.AttributeSet
 import android.view.Menu
-import android.view.MenuItem
+import android.view.View
+import android.view.inputmethod.InputMethodManager
 import androidx.appcompat.app.AppCompatActivity
+import androidx.appcompat.widget.SearchView
 import androidx.core.view.WindowCompat
-import androidx.navigation.findNavController
-import androidx.navigation.ui.AppBarConfiguration
-import androidx.navigation.ui.navigateUp
-import androidx.navigation.ui.setupActionBarWithNavController
-import com.google.android.material.snackbar.Snackbar
+import androidx.recyclerview.widget.GridLayoutManager
+import androidx.recyclerview.widget.RecyclerView
 import com.krupal.assignment1.databinding.ActivityMainBinding
+import dagger.hilt.android.AndroidEntryPoint
 
-class MainActivity : AppCompatActivity() {
+@AndroidEntryPoint
+class MainActivity : AppCompatActivity(), SearchView.OnQueryTextListener {
 
-    private lateinit var appBarConfiguration: AppBarConfiguration
     private lateinit var binding: ActivityMainBinding
+    private lateinit var listAdapter: ListAdapter
+    private lateinit var inpInputMethodManager: InputMethodManager
 
     override fun onCreate(savedInstanceState: Bundle?) {
         WindowCompat.setDecorFitsSystemWindows(window, false)
@@ -25,37 +30,73 @@ class MainActivity : AppCompatActivity() {
         setContentView(binding.root)
 
         setSupportActionBar(binding.toolbar)
+        inpInputMethodManager = getSystemService(INPUT_METHOD_SERVICE) as InputMethodManager
+        with(binding) {
 
-        val navController = findNavController(R.id.nav_host_fragment_content_main)
-        appBarConfiguration = AppBarConfiguration(navController.graph)
-        setupActionBarWithNavController(navController, appBarConfiguration)
-
-        binding.fab.setOnClickListener { view ->
-            Snackbar.make(view, "Replace with your own action", Snackbar.LENGTH_LONG)
-                .setAnchorView(R.id.fab)
-                .setAction("Action", null).show()
+            with(this.content.recView) {
+                adapter = ListAdapter(this@MainActivity).also {
+                    listAdapter = it
+                }
+                layoutManager = object : GridLayoutManager(
+                    this@MainActivity,
+                    getColumnCount(),
+                    RecyclerView.VERTICAL, false
+                ) {
+                    override fun generateLayoutParams(
+                        c: Context?,
+                        attrs: AttributeSet?
+                    ): RecyclerView.LayoutParams {
+                        return super.generateLayoutParams(c, attrs).apply {
+                            this.height = getListItemHeightAsPerRatio(getWidth(), spanCount)
+                        }
+                    }
+                }
+            }
         }
     }
 
     override fun onCreateOptionsMenu(menu: Menu): Boolean {
         // Inflate the menu; this adds items to the action bar if it is present.
         menuInflater.inflate(R.menu.menu_main, menu)
+        menu.findItem(R.id.action_search)?.let { searchMenu ->
+            with(searchMenu.actionView as SearchView) {
+                setOnQueryTextListener(this@MainActivity)
+                val closeBT = findViewById<View>(androidx.appcompat.R.id.search_close_btn)
+                closeBT.setOnClickListener {
+                    setQuery(null, true)
+                }
+            }
+        }
+
         return true
     }
 
-    override fun onOptionsItemSelected(item: MenuItem): Boolean {
-        // Handle action bar item clicks here. The action bar will
-        // automatically handle clicks on the Home/Up button, so long
-        // as you specify a parent activity in AndroidManifest.xml.
-        return when (item.itemId) {
-            R.id.action_settings -> true
-            else -> super.onOptionsItemSelected(item)
+    override fun onQueryTextSubmit(query: String?): Boolean {
+        performSearch(query)
+        return true
+    }
+
+    override fun onQueryTextChange(newText: String?): Boolean {
+        performSearch(newText)
+        return true
+    }
+
+    private fun getColumnCount(): Int =
+        if (resources.configuration.orientation == Configuration.ORIENTATION_PORTRAIT) 3 else 7
+
+    private fun performSearch(newText: String?) {
+        newText?.let {
+            if (it.length < 3) {
+                listAdapter.reset()
+            } else {
+                listAdapter.search(it)
+            }
+        } ?: let {
+            listAdapter.reset()
         }
     }
 
-    override fun onSupportNavigateUp(): Boolean {
-        val navController = findNavController(R.id.nav_host_fragment_content_main)
-        return navController.navigateUp(appBarConfiguration)
-                || super.onSupportNavigateUp()
+    private fun getListItemHeightAsPerRatio(viewGroupHeight: Int, spanCount: Int): Int {
+        return 1920 * viewGroupHeight / 1080 / spanCount
     }
 }
