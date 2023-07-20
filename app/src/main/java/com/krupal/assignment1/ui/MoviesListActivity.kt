@@ -1,4 +1,4 @@
-package com.krupal.assignment1
+package com.krupal.assignment1.ui
 
 import android.content.Context
 import android.content.res.Configuration
@@ -12,14 +12,15 @@ import androidx.appcompat.widget.SearchView
 import androidx.core.view.WindowCompat
 import androidx.recyclerview.widget.GridLayoutManager
 import androidx.recyclerview.widget.RecyclerView
+import com.krupal.assignment1.R
 import com.krupal.assignment1.databinding.ActivityMainBinding
 import dagger.hilt.android.AndroidEntryPoint
 
 @AndroidEntryPoint
-class MainActivity : AppCompatActivity(), SearchView.OnQueryTextListener {
+class MoviesListActivity : AppCompatActivity(), SearchView.OnQueryTextListener {
 
     private lateinit var binding: ActivityMainBinding
-    private lateinit var listAdapter: ListAdapter
+    private lateinit var listAdapter: MoviesListAdapter
     private lateinit var inpInputMethodManager: InputMethodManager
 
     override fun onCreate(savedInstanceState: Bundle?) {
@@ -34,11 +35,11 @@ class MainActivity : AppCompatActivity(), SearchView.OnQueryTextListener {
         with(binding) {
 
             with(this.content.recView) {
-                adapter = ListAdapter(this@MainActivity).also {
+                adapter = MoviesListAdapter(this@MoviesListActivity).also {
                     listAdapter = it
                 }
                 layoutManager = object : GridLayoutManager(
-                    this@MainActivity,
+                    this@MoviesListActivity,
                     getColumnCount(),
                     RecyclerView.VERTICAL, false
                 ) {
@@ -60,7 +61,7 @@ class MainActivity : AppCompatActivity(), SearchView.OnQueryTextListener {
         menuInflater.inflate(R.menu.menu_main, menu)
         menu.findItem(R.id.action_search)?.let { searchMenu ->
             with(searchMenu.actionView as SearchView) {
-                setOnQueryTextListener(this@MainActivity)
+                setOnQueryTextListener(this@MoviesListActivity)
                 val closeBT = findViewById<View>(androidx.appcompat.R.id.search_close_btn)
                 closeBT.setOnClickListener {
                     setQuery(null, true)
