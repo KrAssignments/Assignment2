@@ -12,5 +12,6 @@ class MoviesListViewModel @Inject constructor(
     movieRepository: MovieRepository
 ) : ViewModel() {
     val movieItemsUIStates =
-        movieRepository.getMovies().map { pagingdata -> pagingdata.map { movieModel -> } }
+        movieRepository.getMovies("")
+            .map { pagingData -> pagingData.map { movieModel -> MoviesItemUIState(movieModel) } }
 }

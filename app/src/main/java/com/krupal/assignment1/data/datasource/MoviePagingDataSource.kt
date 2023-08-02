@@ -2,26 +2,26 @@ package com.krupal.assignment1.data.datasource
 
 import androidx.paging.PagingSource
 import androidx.paging.PagingState
-import com.krupal.assignment1.data.MovieService
-import com.krupal.assignment1.data.model.ApiResponse
+import com.krupal.assignment1.data.model.Content
+import com.krupal.assignment1.data.service.MovieService
 
 class MoviePagingDataSource constructor(
     private val movieService: MovieService,
     private val query: String?,
-) : PagingSource<Int, ApiResponse.Page.ContentItems.Content>() {
+) : PagingSource<Int, Content>() {
 
     companion object {
         private const val STARTING_PAGE_INDEX = 1
     }
 
-    override fun getRefreshKey(state: PagingState<Int, ApiResponse.Page.ContentItems.Content>): Int? {
+    override fun getRefreshKey(state: PagingState<Int, Content>): Int? {
         return state.anchorPosition?.let { anchorPosition ->
             state.closestPageToPosition(anchorPosition)?.prevKey?.plus(1)
                 ?: state.closestPageToPosition(anchorPosition)?.nextKey?.minus(1)
         }
     }
 
-    override suspend fun load(params: LoadParams<Int>): LoadResult<Int, ApiResponse.Page.ContentItems.Content> {
+    override suspend fun load(params: LoadParams<Int>): LoadResult<Int, Content> {
         val page = params.key ?: STARTING_PAGE_INDEX
         return try {
             val response = movieService.getMoviesList(query, page)

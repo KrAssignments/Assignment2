@@ -34,6 +34,7 @@ android {
     }
     buildFeatures {
         viewBinding true
+        dataBinding true
     }
 }
 
@@ -66,7 +67,7 @@ dependencies {
     testImplementation "androidx.arch.core:core-testing:$arch_version"
     testImplementation "androidx.lifecycle:lifecycle-runtime-testing:$lifecycle_version"
 
-    def paging_version = "3.1.1"
+    def paging_version = "3.2.0"
     implementation("androidx.paging:paging-runtime-ktx:$paging_version")
 
     def hilt = "2.47"
@@ -76,6 +77,8 @@ dependencies {
     kaptAndroidTest "com.google.dagger:hilt-compiler:$hilt"
     testImplementation "com.google.dagger:hilt-android-testing:$hilt"
     kaptTest "com.google.dagger:hilt-compiler:$hilt"
+
+    implementation 'com.github.bumptech.glide:glide:4.15.1'
 }
 
 kapt {

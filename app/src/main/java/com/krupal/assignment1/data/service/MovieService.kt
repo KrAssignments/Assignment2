@@ -1,4 +1,4 @@
-package com.krupal.assignment1.data
+package com.krupal.assignment1.data.service
 
 import com.krupal.assignment1.data.model.ApiResponse
 
