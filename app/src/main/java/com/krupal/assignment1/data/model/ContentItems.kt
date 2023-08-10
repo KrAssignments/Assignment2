@@ -6,5 +6,5 @@ import com.google.gson.annotations.SerializedName
 data class ContentItems(
     @SerializedName("content")
     @Expose
-    val content: List<Content>
+    var content: List<Content>
 )

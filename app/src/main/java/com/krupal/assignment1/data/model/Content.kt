@@ -6,8 +6,8 @@ import com.google.gson.annotations.SerializedName
 data class Content(
     @SerializedName("name")
     @Expose
-    val name: String,
+    var name: String,
     @SerializedName("poster-image")
     @Expose
-    val posterImage: String
+    var posterImage: String
 )

@@ -7,5 +7,5 @@ import com.google.gson.annotations.SerializedName
 data class ApiResponse(
     @SerializedName("page")
     @Expose
-    val page: Page
+    var page: Page
 )

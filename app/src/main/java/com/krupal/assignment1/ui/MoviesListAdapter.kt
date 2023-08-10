@@ -27,14 +27,6 @@ class MoviesListAdapter @Inject constructor(private val context: Context) :
         getItem(position)?.let { moviesItemUIState -> holder.bind(moviesItemUIState) }
     }
 
-    fun reset() {
-        refresh()
-    }
-
-    fun search(it: String) {
-
-    }
-
     object Comparator : DiffUtil.ItemCallback<MoviesItemUIState>() {
         override fun areItemsTheSame(
             oldItem: MoviesItemUIState,

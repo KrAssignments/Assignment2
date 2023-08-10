@@ -1,9 +1,10 @@
 package com.krupal.assignment1.di
 
+import android.app.Application
 import com.krupal.assignment1.data.repository.MovieRepository
 import com.krupal.assignment1.data.repository.MovieRepositoryImpl
+import com.krupal.assignment1.data.service.AssetsMovieServiceImpl
 import com.krupal.assignment1.data.service.MovieService
-import dagger.Binds
 import dagger.Module
 import dagger.Provides
 import dagger.hilt.InstallIn
@@ -11,11 +12,13 @@ import dagger.hilt.components.SingletonComponent
 
 @Module
 @InstallIn(SingletonComponent::class)
-interface MoviesModule {
+internal object MoviesModule {
 
     @Provides
-    fun provideMovieService(service: MovieService): MovieService
+    fun provideMovieService(application: Application): MovieService =
+        AssetsMovieServiceImpl(application)
 
-    @Binds
-    fun provideMovieRepository(repo: MovieRepositoryImpl): MovieRepository
+    @Provides
+    fun bindMovieRepository(movieService: MovieService): MovieRepository =
+        MovieRepositoryImpl(movieService)
 }

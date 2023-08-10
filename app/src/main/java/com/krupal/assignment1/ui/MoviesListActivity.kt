@@ -1,15 +1,17 @@
 package com.krupal.assignment1.ui
 
+import android.app.SearchManager
 import android.content.Context
+import android.content.Intent
 import android.content.res.Configuration
 import android.os.Bundle
+import android.provider.SearchRecentSuggestions
 import android.util.AttributeSet
 import android.view.Menu
 import android.view.View
-import android.view.inputmethod.InputMethodManager
+import androidx.activity.viewModels
 import androidx.appcompat.app.AppCompatActivity
 import androidx.appcompat.widget.SearchView
-import androidx.core.view.WindowCompat
 import androidx.recyclerview.widget.GridLayoutManager
 import androidx.recyclerview.widget.RecyclerView
 import com.krupal.assignment1.R
@@ -21,17 +23,15 @@ class MoviesListActivity : AppCompatActivity(), SearchView.OnQueryTextListener {
 
     private lateinit var binding: ActivityMainBinding
     private lateinit var listAdapter: MoviesListAdapter
-    private lateinit var inpInputMethodManager: InputMethodManager
+    private val viewModel: MoviesListViewModel by viewModels()
 
     override fun onCreate(savedInstanceState: Bundle?) {
-        WindowCompat.setDecorFitsSystemWindows(window, false)
         super.onCreate(savedInstanceState)
 
         binding = ActivityMainBinding.inflate(layoutInflater)
         setContentView(binding.root)
 
         setSupportActionBar(binding.toolbar)
-        inpInputMethodManager = getSystemService(INPUT_METHOD_SERVICE) as InputMethodManager
         with(binding) {
 
             with(this.content.recView) {
@@ -54,6 +54,21 @@ class MoviesListActivity : AppCompatActivity(), SearchView.OnQueryTextListener {
                 }
             }
         }
+
+        viewModel.movieItemsUIStates.observe(this) {
+            listAdapter.submitData(this.lifecycle, it)
+        }
+
+        if (Intent.ACTION_SEARCH == intent.action) {
+            intent.getStringExtra(SearchManager.QUERY)?.also { query ->
+                SearchRecentSuggestions(
+                    this,
+                    MoviesSearchProvider.AUTHORITY,
+                    MoviesSearchProvider.MODE
+                )
+                    .saveRecentQuery(query, null)
+            }
+        }
     }
 
     override fun onCreateOptionsMenu(menu: Menu): Boolean {
@@ -74,6 +89,10 @@ class MoviesListActivity : AppCompatActivity(), SearchView.OnQueryTextListener {
 
     override fun onQueryTextSubmit(query: String?): Boolean {
         performSearch(query)
+        query?.let {
+            SearchRecentSuggestions(this, MoviesSearchProvider.AUTHORITY, MoviesSearchProvider.MODE)
+                .saveRecentQuery(it, null)
+        }
         return true
     }
 
@@ -86,15 +105,7 @@ class MoviesListActivity : AppCompatActivity(), SearchView.OnQueryTextListener {
         if (resources.configuration.orientation == Configuration.ORIENTATION_PORTRAIT) 3 else 7
 
     private fun performSearch(newText: String?) {
-        newText?.let {
-            if (it.length < 3) {
-                listAdapter.reset()
-            } else {
-                listAdapter.search(it)
-            }
-        } ?: let {
-            listAdapter.reset()
-        }
+        viewModel.searchQueryLiveData.postValue(newText)
     }
 
     private fun getListItemHeightAsPerRatio(viewGroupHeight: Int, spanCount: Int): Int {

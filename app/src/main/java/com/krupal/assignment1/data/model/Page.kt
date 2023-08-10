@@ -6,17 +6,17 @@ import com.google.gson.annotations.SerializedName
 data class Page(
     @SerializedName("content-items")
     @Expose
-    val contentItems: ContentItems,
+    var contentItems: ContentItems,
     @SerializedName("page-num")
     @Expose
-    val pageNum: Int,
+    var pageNum: Int,
     @SerializedName("page-size")
     @Expose
-    val pageSize: Int,
+    var pageSize: Int,
     @SerializedName("title")
     @Expose
-    val title: String,
+    var title: String,
     @SerializedName("total-content-items")
     @Expose
-    val totalContentItems: Int
+    var totalContentItems: Int
 )
