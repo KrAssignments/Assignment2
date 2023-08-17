@@ -4,6 +4,8 @@ import androidx.paging.PagingSource
 import androidx.paging.PagingState
 import com.krupal.assignment1.data.model.Content
 import com.krupal.assignment1.data.service.MovieService
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.withContext
 
 class MoviePagingDataSource constructor(
     private val movieService: MovieService,
@@ -22,9 +24,12 @@ class MoviePagingDataSource constructor(
     }
 
     override suspend fun load(params: LoadParams<Int>): LoadResult<Int, Content> {
+
         val page = params.key ?: STARTING_PAGE_INDEX
         return try {
-            val response = movieService.getMoviesList(query, page)
+            val response = withContext(Dispatchers.IO) {
+                movieService.getMoviesList(query, page)
+            }
             LoadResult.Page(
                 data = response.page.contentItems.content,
                 prevKey = if (page == STARTING_PAGE_INDEX) null else page.minus(1),
